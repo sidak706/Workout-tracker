@@ -165,6 +165,14 @@
         weight: parseFloat(weightInput.value),
         loggedAt: new Date().toISOString()
       };
+      fetch("http://127.0.0.1:5000/save_entry", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(entry)
+    })
+    .then(res => res.json())
+    .then(data => console.log("Flask responded:", data))
+    .catch(err => console.error("Error:", err));
       if(!currentExercise){return}
       const key = `workout_${currentExercise}`;
       const arr = JSON.parse(localStorage.getItem(key) || '[]');
