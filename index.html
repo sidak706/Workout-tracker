@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Gym Tracker</title>
+  <style>
+    :root{--bg:#f6f8fb;--card:#ffffff;--accent:#2563eb;--muted:#6b7280}
+    body{font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;background:var(--bg);margin:0;padding:28px;color:#0f172a}
+    .container{max-width:880px;margin:0 auto}
+    h1{font-size:22px;margin:0 0 12px}
+    p.lead{color:var(--muted);margin:0 0 20px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+    button.exercise{background:linear-gradient(180deg,var(--card),#f8fafc);border:1px solid #e6eefc;padding:12px;border-radius:10px;cursor:pointer;box-shadow:0 6px 18px rgba(37,99,235,0.06);display:flex;align-items:center;justify-content:center;font-weight:600}
+    button.exercise:active{transform:translateY(1px)}
+
+    /* Modal */
+    .overlay{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;padding:20px}
+    .overlay.open{display:flex}
+    .modal{width:100%;max-width:420px;background:var(--card);padding:18px;border-radius:12px;box-shadow:0 10px 40px rgba(2,6,23,0.2)}
+    .modal h2{margin:0 0 8px;font-size:18px}
+    .row{display:flex;gap:8px}
+    .field{margin-bottom:10px}
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    input[type="date"],input[type="number"],select{width:100%;padding:8px;border-radius:8px;border:1px solid #e6eefc;background:#fbfdff}
+    .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
+    button.btn{padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+    button.primary{background:var(--accent);color:white}
+    button.ghost{background:transparent;border:1px solid #e6eefc}
+
+    /* Entries list */
+    .card{background:var(--card);padding:12px;border-radius:10px;margin-top:16px;border:1px solid #eef2ff}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{padding:8px;text-align:left;border-bottom:1px dashed #eef2ff}
+    th{color:var(--muted);font-weight:600}
+    .small{font-size:13px;color:var(--muted)}
+    .toast{position:fixed;right:20px;bottom:20px;background:#111827;color:white;padding:10px 14px;border-radius:8px;display:none}
+    .toast.show{display:block}
+    @media (max-width:420px){.row{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Gym Tracker — Quick Log</h1>
+    <p class="lead">Click an exercise to log a set. Entries are stored in your browser (localStorage).</p>
+
+    <div id="buttons" class="grid"></div>
+
+    <div id="entries" class="card" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <strong id="entries-title">Entries</strong>
+        <button id="clearBtn" class="btn ghost">Clear all for this exercise</button>
+      </div>
+      <div id="entries-body">
+        <table>
+          <thead><tr><th>Date</th><th>Sets</th><th>Reps</th><th>Weight</th><th class="small">Logged</th></tr></thead>
+          <tbody id="entries-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- modal -->
+  <div id="overlay" class="overlay" role="dialog" aria-modal="true">
+    <div class="modal" role="document">
+      <h2 id="modal-title">Log</h2>
+      <form id="logForm">
+        <div class="field">
+          <label for="date">Date</label>
+          <input type="date" id="date" required />
+        </div>
+        <div class="row">
+          <div class="field" style="flex:1">
+            <label for="sets">Sets</label>
+            <input type="number" id="sets" min="1" step="1" value="3" required />
+          </div>
+          <div class="field" style="flex:1">
+            <label for="reps">Reps</label>
+            <input type="number" id="reps" min="1" step="1" value="8" required />
+          </div>
+        </div>
+        <div class="field">
+          <label for="weight">Weight</label>
+          <input type="number" id="weight" min="0" step="0.5" value="0" required />
+        </div>
+        <div class="actions">
+          <button type="button" id="cancelBtn" class="btn ghost">Cancel</button>
+          <button type="submit" class="btn primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Saved!</div>
+
+  <script>
+    const exercises = [
+      'Bench Press',
+      'Squat',
+      'Deadlift',
+      'Overhead Press',
+      'Barbell Row',
+      'Pull-up',
+      'Bicep Curl',
+      'Tricep Extension'
+    ];
+
+    const buttonsEl = document.getElementById('buttons');
+    const overlay = document.getElementById('overlay');
+    const modalTitle = document.getElementById('modal-title');
+    const logForm = document.getElementById('logForm');
+    const dateInput = document.getElementById('date');
+    const setsInput = document.getElementById('sets');
+    const repsInput = document.getElementById('reps');
+    const weightInput = document.getElementById('weight');
+    const toast = document.getElementById('toast');
+
+    const entriesCard = document.getElementById('entries');
+    const entriesTitle = document.getElementById('entries-title');
+    const entriesTable = document.getElementById('entries-table');
+    const clearBtn = document.getElementById('clearBtn');
+
+    let currentExercise = null;
+
+    // render buttons
+    exercises.forEach(name => {
+      const b = document.createElement('button');
+      b.className = 'exercise';
+      b.textContent = name;
+      b.onclick = () => openModal(name);
+      buttonsEl.appendChild(b);
+    });
+
+    function openModal(name){
+      currentExercise = name;
+      modalTitle.textContent = `Log — ${name}`;
+      // default date to today
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth()+1).padStart(2,'0');
+      const dd = String(today.getDate()).padStart(2,'0');
+      dateInput.value = `${yyyy}-${mm}-${dd}`;
+      // keep previous values for sets/reps/weight if present in localStorage quick-settings
+      const settings = JSON.parse(localStorage.getItem('quick_settings')||'{}');
+      setsInput.value = settings.sets || 3;
+      repsInput.value = settings.reps || 8;
+      weightInput.value = settings.weight || 0;
+      overlay.classList.add('open');
+      entriesCard.style.display = 'block';
+      entriesTitle.textContent = `${name} — Recent entries`;
+      renderEntries();
+    }
+
+    function closeModal(){
+      overlay.classList.remove('open');
+    }
+
+    // save entry
+    logForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const entry = {
+        date: dateInput.value,
+        sets: parseInt(setsInput.value,10),
+        reps: parseInt(repsInput.value,10),
+        weight: parseFloat(weightInput.value),
+        loggedAt: new Date().toISOString()
+      };
+      if(!currentExercise){return}
+      const key = `workout_${currentExercise}`;
+      const arr = JSON.parse(localStorage.getItem(key) || '[]');
+      arr.unshift(entry); // newest first
+      localStorage.setItem(key, JSON.stringify(arr));
+      // quick settings
+      localStorage.setItem('quick_settings', JSON.stringify({sets:entry.sets,reps:entry.reps,weight:entry.weight}));
+      showToast('Saved');
+      closeModal();
+      renderEntries();
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', ()=> closeModal());
+
+    // close on backdrop click or ESC
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+    function renderEntries(){
+      if(!currentExercise) return;
+      const key = `workout_${currentExercise}`;
+      const arr = JSON.parse(localStorage.getItem(key) || '[]');
+      entriesTable.innerHTML = '';
+      if(arr.length===0){
+        entriesTable.innerHTML = '<tr><td colspan="5" class="small">No entries yet — click the exercise button to log your first set.</td></tr>';
+        clearBtn.style.display = 'none';
+        return;
+      }
+      clearBtn.style.display = 'inline-block';
+      // show up to 20 entries
+      arr.slice(0,20).forEach(it=>{
+        const tr = document.createElement('tr');
+        const d = new Date(it.date).toISOString().slice(0,10);
+        tr.innerHTML = `<td>${d}</td><td>${it.sets}</td><td>${it.reps}</td><td>${it.weight}</td><td class="small">${new Date(it.loggedAt).toLocaleString()}</td>`;
+        entriesTable.appendChild(tr);
+      });
+    }
+
+    clearBtn.addEventListener('click', ()=>{
+      if(!currentExercise) return;
+      if(!confirm(`Clear all saved entries for ${currentExercise}? This cannot be undone.`)) return;
+      localStorage.removeItem(`workout_${currentExercise}`);
+      renderEntries();
+      showToast('Cleared');
+    });
+
+    function showToast(text){
+      toast.textContent = text;
+      toast.classList.add('show');
+      setTimeout(()=> toast.classList.remove('show'),1600);
+    }
+
+    // initial: hide entries
+    entriesCard.style.display = 'none';
+  </script>
+</body>
+</html>
