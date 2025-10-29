@@ -282,7 +282,9 @@ button.btn.danger{
 .progress-table td {
   text-align: center;
   padding: 0.8rem 0.8rem;
+  font-size: 1.5rem;
 }
+
 
 .progress-table th {
   color: #888;
@@ -296,8 +298,9 @@ button.btn.danger{
 
 .progress-table td {
   color: #ddd;
-  font-size: 1rem;
   border-bottom: 1px solid #252525;
+  font-size: 1.1rem;
+  font-weight: bold; 
 }
 
 .progress-table tr:last-child td {
