@@ -144,43 +144,186 @@ button.btn.danger{
 @media (max-width:420px){.row{flex-direction:column}}
 
 
+.progress-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.progress-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.progress-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3bb273 0%, #2a9d5f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.progress-subtitle {
+  color: #888;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.exercise-selector {
+  margin-bottom: 2rem;
+}
+
+.select-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #ddd;
+  margin-bottom: 0.6rem;
+}
+
+.label-icon {
+  color: #3bb273;
+}
+
+.exercise-select {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  background: #1a1a1a;
+  border: 2px solid #2a2a2a;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.exercise-select:hover {
+  border-color: #3bb273;
+  background: #1f1f1f;
+}
+
+.exercise-select:focus {
+  border-color: #3bb273;
+  box-shadow: 0 0 0 3px rgba(59, 178, 115, 0.1);
+}
+
 .progress-container {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: #1a1a1a;
+  border: 2px dashed #2a2a2a;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.empty-icon {
+  color: #3bb273;
+  opacity: 0.6;
+  margin-bottom: 1rem;
+}
+
+.empty-text {
+  color: #888;
+  font-size: 1.05rem;
 }
 
 .progress-card {
-  background: #1f1f1f;
-  border-radius: 10px;
-  padding: 1rem 1.2rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  background: linear-gradient(135deg, #1f1f1f 0%, #1a1a1a 100%);
+  border-radius: 16px;
+  padding: 1.5rem 1.8rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border: 1px solid #2a2a2a;
+  transition: all 0.3s ease;
+}
+
+.progress-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  border-color: #3bb273;
 }
 
 .progress-date {
-  font-weight: bold;
+  font-weight: 700;
   color: #3bb273;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progress-date::before {
+  content: "📅";
   font-size: 1.1rem;
-  margin-bottom: 0.8rem;
 }
 
 .progress-table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 0.5rem;
 }
 
 .progress-table th,
 .progress-table td {
   text-align: center;
-  padding: 0.4rem 0.6rem;
+  padding: 0.8rem 0.8rem;
 }
 
 .progress-table th {
-  color: #aaa;
-  border-bottom: 1px solid #333;
+  color: #888;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #2a2a2a;
+  background: rgba(59, 178, 115, 0.05);
 }
 
 .progress-table td {
   color: #ddd;
+  font-size: 1rem;
+  border-bottom: 1px solid #252525;
+}
+
+.progress-table tr:last-child td {
+  border-bottom: none;
+}
+
+.progress-table tr {
+  transition: background 0.2s ease;
+}
+
+.progress-table tbody tr:hover {
+  background: rgba(59, 178, 115, 0.08);
+}
+
+@media (max-width: 600px) {
+  .progress-title {
+    font-size: 2rem;
+  }
+  
+  .progress-card {
+    padding: 1.2rem 1rem;
+  }
+  
+  .progress-table th,
+  .progress-table td {
+    padding: 0.6rem 0.4rem;
+    font-size: 0.9rem;
+  }
 }

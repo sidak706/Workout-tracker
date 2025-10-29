@@ -126,7 +126,7 @@
 
 
 
-
+<!-- 
 <div id="progressPage">
   <h2>Progress</h2>
 
@@ -137,6 +137,39 @@
 
   <div id="exerciseProgressContainer" class="progress-container">
     <p>Select an exercise to view your progress.</p>
+  </div>
+</div> -->
+
+<div id="progressPage" class="progress-page">
+  <div class="progress-header">
+    <h2 class="progress-title">Your Progress</h2>
+    <p class="progress-subtitle">Track your fitness journey</p>
+  </div>
+
+  <div class="field exercise-selector">
+    <label for="exerciseSelect" class="select-label">
+      <svg class="label-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6.5 6.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"></path>
+        <path d="M17.5 6.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"></path>
+        <path d="M6.5 17.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"></path>
+        <path d="M17.5 17.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"></path>
+        <path d="M8.5 8.5l7 7M8.5 15.5l7-7"></path>
+      </svg>
+      Select Exercise
+    </label>
+    <select id="exerciseSelect" class="exercise-select">
+      <option value="">Choose an exercise...</option>
+    </select>
+  </div>
+
+  <div id="exerciseProgressContainer" class="progress-container">
+    <div class="empty-state">
+      <svg class="empty-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        <path d="M9 12l2 2 4-4"></path>
+      </svg>
+      <p class="empty-text">Select an exercise to view your progress</p>
+    </div>
   </div>
 </div>
 
