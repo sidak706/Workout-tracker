@@ -1,97 +1,81 @@
-const exercises = [
-      'Bench Press',
-      'Squat',
-      'Deadlift',
-      'Overhead Press',
-      'Barbell Row',
-      'Pull-up',
-      'Bicep Curl',
-      'Tricep Extension'
-    ];
+// const exercises = [
+//       'Bench Press',
+//       'Squat',
+//       'Deadlift',
+//       'Overhead Press',
+//       'Barbell Row',
+//       'Pull-up',
+//       'Bicep Curl',
+//       'Tricep Extension'
+//     ];
+
+const basic_exercises = ["Leg Extensions", "Hip thrusts", "Hip abductor machine", "Leg press"]; 
+
+var all_exercises = []
 
 const backend = "http://127.0.0.1:5000"
 
-const buttonsEl = document.getElementById('buttons');
 const overlay = document.getElementById('overlay');
-const modalTitle = document.getElementById('modal-title');
-const logForm = document.getElementById('logWorkoutForm');
-const dateInput = document.getElementById('date');
-const setsInput = document.getElementById('sets');
-const repsInput = document.getElementById('reps');
-const weightInput = document.getElementById('weight');
 const toast = document.getElementById('toast');
-
-const entriesCard = document.getElementById('entries');
-const entriesTitle = document.getElementById('entries-title');
-const entriesTable = document.getElementById('entries-table');
-const clearBtn = document.getElementById('clearBtn');
 
 let currentExercise = null;
 
-// render buttons
-exercises.forEach(name => {
-    const b = document.createElement('button');
-    b.className = 'exercise';
-    b.textContent = name;
-    b.onclick = () => openWorkoutModal(name);
-    buttonsEl.appendChild(b);
-});
+// Get names of all exercises and render them on the page
+async function get_display_exercises(){
+    try {
+        const res = await fetch(`${backend}/get_all_exer`);
+        const exercises = await res.json();
+
+        const buttonsContainer = document.getElementById('buttons');
+        // Clear existing buttons first
+        buttonsContainer.replaceChildren();
+
+        if (exercises.length === 0) {
+            return;
+        }
+        console.log(exercises); 
+
+        all_exercises = []
+
+        // render buttons
+        exercises.forEach(ex => {
+            const b = document.createElement('button');
+            b.className = 'exercise';
+            b.textContent = ex.name;
+            b.onclick = () => openWorkoutModal(ex.name);
+            document.getElementById('buttons').appendChild(b);
+            all_exercises.push(ex.name); 
+        });
+
+    } catch (err) {
+        showToast("Unable to load exercises!", "#b91010ff");
+        return ; 
+    }
+}
+
 
 function openWorkoutModal(name){
-    currentExercise = name;
-    modalTitle.textContent = `Log — ${name}`;
+    document.getElementById('modal-title').textContent = `Log — ${name}`;
     // default date to today
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth()+1).padStart(2,'0');
     const dd = String(today.getDate()).padStart(2,'0');
-    dateInput.value = `${yyyy}-${mm}-${dd}`;
+    document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
     // keep previous values for sets/reps/weight if present in localStorage quick-settings
     const settings = JSON.parse(localStorage.getItem('quick_settings')||'{}');
-    setsInput.value = settings.sets || 3;
-    repsInput.value = settings.reps || 8;
-    weightInput.value = settings.weight || 0;
+    document.getElementById('sets').value = settings.sets || 3;
+    document.getElementById('reps').value = settings.reps || 8;
+    document.getElementById('weight').value = settings.weight || 0;
     overlay.classList.add('open');
-    entriesCard.style.display = 'block';
-    entriesTitle.textContent = `${name} — Recent entries`;
-    renderEntries();
+
+    currentExercise = name; 
 }
 
 function closeModal(){
     overlay.classList.remove('open');
 }
 
-// save entry
-// logForm.addEventListener('submit', e => {
-//         e.preventDefault();
-//         const entry = {
-//         date: dateInput.value,
-//         sets: parseInt(setsInput.value,10),
-//         reps: parseInt(repsInput.value,10),
-//         weight: parseFloat(weightInput.value),
-//         loggedAt: new Date().toISOString()
-//         };
-//         // fetch('"http://127.0.0.1:5000/save_entry"', {
-//         fetch(`${backend}/save_entry`, {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(entry)
-//     })
-//     .then(res => res.json())
-//     .then(data => console.log("Flask responded:", data))
-//     .catch(err => console.error("Error:", err));
-//         if(!currentExercise){return}
-//         const key = `workout_${currentExercise}`;
-//         const arr = JSON.parse(localStorage.getItem(key) || '[]');
-//         arr.unshift(entry); // newest first
-//         localStorage.setItem(key, JSON.stringify(arr));
-//         // quick settings
-//         localStorage.setItem('quick_settings', JSON.stringify({sets:entry.sets,reps:entry.reps,weight:entry.weight}));
-//         showToast('Saved');
-//         closeModal();
-//         renderEntries();
-//     }
-// );
 
 document.getElementById('cancelBtn').addEventListener('click', ()=> closeModal());
 
@@ -99,70 +83,389 @@ document.getElementById('cancelBtn').addEventListener('click', ()=> closeModal()
 overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
 
-function renderEntries(){
-    if(!currentExercise) return;
-    const key = `workout_${currentExercise}`;
-    const arr = JSON.parse(localStorage.getItem(key) || '[]');
-    entriesTable.innerHTML = '';
-    if(arr.length===0){
-        entriesTable.innerHTML = '<tr><td colspan="5" class="small">No entries yet — click the exercise button to log your first set.</td></tr>';
-        clearBtn.style.display = 'none';
-        return;
-    }
-    clearBtn.style.display = 'inline-block';
-    // show up to 20 entries
-    arr.slice(0,20).forEach(it=>{
-    const tr = document.createElement('tr');
-    const d = new Date(it.date).toISOString().slice(0,10);
-    tr.innerHTML = `<td>${d}</td><td>${it.sets}</td><td>${it.reps}</td><td>${it.weight}</td><td class="small">${new Date(it.loggedAt).toLocaleString()}</td>`;
-    entriesTable.appendChild(tr);
-    });
-}
 
-clearBtn.addEventListener('click', ()=>{
-    if(!currentExercise) return;
-    if(!confirm(`Clear all saved entries for ${currentExercise}? This cannot be undone.`)) return;
-    localStorage.removeItem(`workout_${currentExercise}`);
-    renderEntries();
-    showToast('Cleared');
-});
-
-function showToast(text){
+function showToast(text, color = "#10b981"){
     toast.textContent = text;
+    toast.style.backgroundColor = color; 
     toast.classList.add('show');
     setTimeout(()=> toast.classList.remove('show'),1600);
 }
 
-function add_new_exer(){
-    
-}   
+const addExerciseOverlay = document.getElementById("addExerciseOverlay");
+const addExerciseForm = document.getElementById("addExerciseForm");
+const cancelAddBtn = document.getElementById("cancelAddBtn");
 
-function get_display_groups(name){
-    
+// Open the modal (call this when "Add Exercise" button is clicked)
+function openAddExerciseModal() {
+    get_display_groups()
+    addExerciseForm.reset(); // clear previous inputs
+    addExerciseOverlay.classList.add("open");
 }
 
-function get_display_last_5(){
-
+// Close modal
+function closeAddExerciseModal() {
+    addExerciseOverlay.classList.remove("open");
 }
 
-function add_new_workout(){
+// // Submit handler
+async function add_new_exer(e) {
+    e.preventDefault();
+
+    const name = document.getElementById("exerciseName").value.trim();
+    const groupSelect = document.getElementById("group");
+    const muscle_group = groupSelect.value && groupSelect.value !== "Select group" ? groupSelect.value : null;
+
+    if (!name) {
+        showToast("Please enter a name!", "#b91010ff");
+        return;
+    }
+
+    const payload = { name };
+    if (muscle_group) payload.muscle_group = muscle_group;
+
+    try {
+        const res = await fetch(`${backend}/new_exer`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.status === "success") {
+            showToast(`Exercise "${name}" added successfully!`);
+            closeAddExerciseModal();
+            get_display_exercises(); 
+            // Optionally refresh the exercise list or dropdown
+        } else {
+            // alert("Failed to add exercise.");
+            showToast(data.message, "#b91010ff");
+        }
+    } catch (err) {
+        // console.error("Error adding exercise:", err);
+        showToast(data.message | "Error adding exercise", "#b91010ff");
+    }
+}
+
+
+
+addExerciseForm.addEventListener("submit", add_new_exer);
+cancelAddBtn.addEventListener("click", closeAddExerciseModal);
+
+
+async function get_display_groups(){
+    const select = document.getElementById("group");
+
+    // Clear existing options
+    while (select.firstChild) select.removeChild(select.firstChild);
+
+    // Add default placeholder option
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Select group";
+    select.appendChild(placeholder);
+
+    try {
+        const res = await fetch(`${backend}/get_groups`);
+        const groups = await res.json();
+
+        if (groups.length === 0) {
+            return;
+        }
+        console.log(groups); 
+
+        // Add each group as an option
+        groups.forEach(group => {
+            const opt = document.createElement("option");
+            opt.value = group;
+            opt.textContent = group;
+            select.appendChild(opt);
+        });
+
+    } catch (err) {
+        console.error("Error fetching groups:", err);
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Error loading groups";
+        select.appendChild(opt);
+    }
+}
+
+
+function add_new_workout(e) {
+    e.preventDefault(); // prevent form submission
     const entry = {
-        date: dateInput.value,
-        sets: parseInt(setsInput.value,10),
-        reps: parseInt(repsInput.value,10),
-        weight: parseFloat(weightInput.value),
+        name: currentExercise, 
+        date: document.getElementById('date').value,
+        sets: parseInt(document.getElementById('sets').value, 10),
+        reps: parseInt(document.getElementById('reps').value, 10),
+        weight: parseFloat( document.getElementById('weight').value),
         loggedAt: new Date().toISOString()
     };
-    fetch(`${backend}/save_entry`, {
+
+    const selectedGroup = document.getElementById("group").value;
+    if (selectedGroup && selectedGroup !== "Select group") {
+        entry.muscle_group = selectedGroup;
+    }
+
+    console.log("Entry: " + entry["name"]); 
+
+    fetch(`${backend}/add_workout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(entry)
-    }); 
+    })
+    .then(res => res.json())
+    .then(() => {
+        showToast("Workout saved!"); // show a toast instead of alert
+        document.getElementById('logWorkoutForm').reset(); // clear form inputs
+        closeModal();     // close the modal
+        get_display_last_5(); // refresh the last 5 workouts table
+    })
+    // .then(alert("Saved")) 
+    .catch(err => showToast("Could not save workout!", "#b91010ff"));
 }
 
-// initial: hide entries
-entriesCard.style.display = 'none';
 
-document.getElementById("addExerciseBtn").addEventListener("click", add_new_exer); 
+// Show last 5 workouts added
+async function get_display_last_5(){
+    const res = await fetch(`${backend}/get_last5_workouts`);
+    const last5 = await res.json();
+    const tableBody = document.getElementById("entries-table");
+    if(last5.length === 0){
+        tableBody.replaceChildren();
+        return ; 
+    }
+    
+    // const workouts = [
+    //     { name: "Bench Press", date: "2025-10-23", sets: 4, reps: 10, weight: 50, loggedAt: "2025-10-23T10:30" },
+    //     { name: "Squat", date: "2025-10-22", sets: 3, reps: 8, weight: 60, loggedAt: "2025-10-22T09:10" }
+    // ];
+
+    // Clear old rows
+    tableBody.replaceChildren();
+
+    // For each workout, build a <tr> manually
+    for (const w of last5) {
+        const row = document.createElement("tr");
+
+        const dateCell = document.createElement("td");
+        dateCell.textContent = w.date;
+
+        const setsCell = document.createElement("td");
+        setsCell.textContent = w.sets;
+
+        const repsCell = document.createElement("td");
+        repsCell.textContent = w.reps;
+
+        const weightCell = document.createElement("td");
+        weightCell.textContent = `${w.weight} kg`;
+
+        const loggedCell = document.createElement("td");
+        loggedCell.textContent = new Date(w.loggedAt).toLocaleString();
+        loggedCell.classList.add("small");
+
+        // Optional: include exercise name column at the start
+        const nameCell = document.createElement("td");
+        nameCell.textContent = w.name;
+
+        // Append cells to row
+        row.appendChild(nameCell);
+        row.appendChild(dateCell);
+        row.appendChild(setsCell);
+        row.appendChild(repsCell);
+        row.appendChild(weightCell);
+
+        // row.appendChild(loggedCell);
+
+        // Append row to table body
+        tableBody.appendChild(row);
+    }
+    document.getElementById("entries-body").style.display = "block";
+
+}
+
+
+// Delete an exercise and all its corresponding workouts
+async function delete_exer(){
+    const overlay = document.getElementById('deleteExerciseOverlay');
+    const checkboxes = document.querySelectorAll('#exerciseListContainer input[type="checkbox"]:checked');
+    
+    const selected = Array.from(checkboxes).map(cb => cb.value);
+    if (selected.length === 0) {
+        showToast("No exercises selected!", "#b91010ff");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${backend}/delete_exercises`, {
+        method: "DELETE", // or "DELETE" if you prefer RESTful style
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ names: selected })
+        });
+
+
+        const data = await res.json();
+        if (data.status === "success") {
+            showToast(`Deleted ${selected.length} exercise(s)`, "#3bb273");
+            overlay.classList.remove('open');
+            await get_display_exercises(); // refresh list
+            console.log("Now calling last 5"); 
+            await get_display_last_5();
+        } else {
+            showToast(data.message || "Failed to delete exercises", "#b91010ff");
+        }
+    } catch (err) {
+        showToast("Server error while deleting exercises", "#b91010ff");
+    }
+}
+
+
+
+function openDeleteExerciseModal() {
+    const overlay = document.getElementById('deleteExerciseOverlay');
+    const container = document.getElementById('exerciseListContainer');
+
+    // Clear previous entries
+    container.innerHTML = "";
+
+    if (!all_exercises || all_exercises.length === 0) {
+    container.innerHTML = "<p>No exercises found.</p>";
+    } else {
+    all_exercises.forEach(name => {
+        const div = document.createElement("div");
+        div.classList.add("checkbox-item");
+        div.innerHTML = `
+        <label>
+            <input type="checkbox" value="${name}">
+            ${name}
+        </label>
+        `;
+        container.appendChild(div);
+    });
+    }
+
+    overlay.classList.add('open');
+}
+
+document.getElementById('deleteExerciseBtn').addEventListener('click', openDeleteExerciseModal);
+
+document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+  document.getElementById('deleteExerciseOverlay').classList.remove('open');
+});
+
+
+
+
+// initial: hide entries
+// entriesCard.style.display = 'none';
+
+document.getElementById("addExerciseBtn").addEventListener("click", openAddExerciseModal);
 document.getElementById('logWorkoutForm').addEventListener("submit", add_new_workout); 
+document.getElementById('confirmDeleteBtn').addEventListener('click', delete_exer); 
 window.addEventListener("DOMContentLoaded", get_display_last_5); 
+window.addEventListener("DOMContentLoaded", get_display_exercises); 
+
+
+
+// Mock sample data: multiple weights/sets per date
+const sampleProgressData = {
+  "Bench Press": [
+    {
+      date: "2025-10-10",
+      sets: [
+        { reps: 8, weight: 50 },
+        { reps: 8, weight: 55 },
+        { reps: 6, weight: 60 }
+      ]
+    },
+    {
+      date: "2025-10-17",
+      sets: [
+        { reps: 10, weight: 55 },
+        { reps: 8, weight: 60 },
+        { reps: 6, weight: 65 }
+      ]
+    }
+  ],
+  "Squat": [
+    {
+      date: "2025-10-09",
+      sets: [
+        { reps: 10, weight: 70 },
+        { reps: 8, weight: 75 }
+      ]
+    },
+    {
+      date: "2025-10-14",
+      sets: [
+        { reps: 6, weight: 80 },
+        { reps: 6, weight: 82.5 },
+        { reps: 5, weight: 85 }
+      ]
+    }
+  ]
+};
+
+// Helper to format date like "October 23, 2025"
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
+// Populate dropdown
+function populateSampleExercises() {
+  const select = document.getElementById("exerciseSelect");
+  select.innerHTML = "";
+
+  Object.keys(sampleProgressData).forEach(name => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    select.appendChild(option);
+  });
+
+  select.addEventListener("change", () => {
+    const selected = select.value;
+    if (selected) displaySampleProgress(selected);
+  });
+}
+
+// Display exercise progress
+function displaySampleProgress(name) {
+  const container = document.getElementById("exerciseProgressContainer");
+  const entries = sampleProgressData[name];
+  container.innerHTML = "";
+
+  entries.forEach(session => {
+    const card = document.createElement("div");
+    card.classList.add("progress-card");
+
+    const dateHeading = document.createElement("div");
+    dateHeading.classList.add("progress-date");
+    dateHeading.textContent = formatDate(session.date);
+
+    const table = document.createElement("table");
+    table.classList.add("progress-table");
+    table.innerHTML = `
+      <thead>
+        <tr><th>Set</th><th>Reps</th><th>Weight (kg)</th></tr>
+      </thead>
+      <tbody>
+        ${session.sets.map((set, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${set.reps}</td>
+            <td>${set.weight}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    `;
+
+    card.appendChild(dateHeading);
+    card.appendChild(table);
+    container.appendChild(card);
+  });
+}
+
+// Initialize mock
+populateSampleExercises();

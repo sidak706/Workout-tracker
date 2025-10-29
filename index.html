@@ -32,18 +32,19 @@
   <div class="container">
     <h1>Gym Tracker — Quick Log</h1>
     <button id="addExerciseBtn" class="btn primary">+ Add Exercise</button>
+    <button type="button" id="deleteExerciseBtn" class="btn danger">Delete Exercise</button>
     <p class="lead">Click an exercise to log a set.</p>
 
     <div id="buttons" class="grid"></div>
 
-    <div id="entries" class="card" style="display:none">
+    <div id="entries" class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <strong id="entries-title">Entries</strong>
-        <button id="clearBtn" class="btn ghost">Clear all for this exercise</button>
+        <strong id="entries-title">Last 5 Exercises</strong>
+        <!-- <button id="clearBtn" class="btn ghost">Clear all for this exercise</button> -->
       </div>
       <div id="entries-body">
         <table>
-          <thead><tr><th>Date</th><th>Sets</th><th>Reps</th><th>Weight</th><th class="small">Logged</th></tr></thead>
+          <thead><tr><th>Exercise Name</th><th>Date</th><th>Sets</th><th>Reps</th><th>Weight</th></tr></thead>
           <tbody id="entries-table"></tbody>
         </table>
       </div>
@@ -59,6 +60,8 @@
           <label for="date">Date</label>
           <input type="date" id="date" required />
         </div>
+
+
         <div class="row">
           <div class="field" style="flex:1">
             <label for="sets">Sets</label>
@@ -89,10 +92,13 @@
         <label for="exerciseName">Exercise Name</label>
         <input type="text" id="exerciseName" required placeholder="e.g. Bench Press" />
       </div>
-      <div class="field">
-        <label for="muscleGroup">Muscle Group (optional)</label>
-        <input type="text" id="muscleGroup" placeholder="e.g. Chest" />
+
+        <div class="field">
+        <label for="group">Muscle Group</label>
+        <select id="group">
+        </select>
       </div>
+
       <div class="actions">
         <button type="button" id="cancelAddBtn" class="btn ghost">Cancel</button>
         <button type="submit" class="btn primary">Add</button>
@@ -100,6 +106,41 @@
     </form>
   </div>
 </div>
+
+
+<div id="deleteExerciseOverlay" class="overlay" role="dialog" aria-modal="true">
+  <div class="modal" role="document">
+    <h2>Delete Exercises</h2>
+    <p>Select one or more exercises to delete:</p>
+    
+    <div id="exerciseListContainer" class="list-container">
+      <!-- checkboxes get dynamically inserted here -->
+    </div>
+
+    <div class="actions">
+      <button type="button" id="cancelDeleteBtn" class="btn ghost">Cancel</button>
+      <button type="button" id="confirmDeleteBtn" class="btn danger">Delete Selected</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div id="progressPage">
+  <h2>Progress</h2>
+
+  <div class="field">
+    <label for="exerciseSelect">Select Exercise</label>
+    <select id="exerciseSelect"></select>
+  </div>
+
+  <div id="exerciseProgressContainer" class="progress-container">
+    <p>Select an exercise to view your progress.</p>
+  </div>
+</div>
+
+
 
   <div id="toast" class="toast">Saved!</div>
 
