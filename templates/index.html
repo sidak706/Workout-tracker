@@ -4,31 +4,21 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Simple Gym Tracker</title>
-  <link rel="stylesheet" href="style.css">
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/style_exercise.css') }}"> -->
+  <link rel="stylesheet" href="../static/styles/style_exercise.css">
 </head>
 <body>
 
   <nav class="navbar">
   <!-- <div class="logo">🏋️ Gym Tracker</div> -->
   <ul class="nav-links">
-    <li><a href="#">Exercises</a></li>
-    <li><a href="#">Progress</a></li>
-    <li><a href="#">Muscle Groups</a></li>
+    <li><a href="#" id="nav-exercises">Exercises</a></li>
+    <li><a href="#" id="nav-progress">Progress</a></li>
+    <li><a href="#" id="nav-muscle">Muscle Groups</a></li>
   </ul>
 </nav>
 
-<!-- <div class="container">
-  <div class="header-row">
-    <h1>Gym Tracker — Quick Log</h1>
-    <button id="addExerciseBtn" class="btn primary">+ Add Exercise</button>
-  </div>
-
-  <p class="lead">Click an exercise to log a set. Entries are stored in your browser (localStorage).</p>
-
-  <div id="buttons" class="grid"></div>
-</div> -->
-
-
+<div id="exercisesPage" class="page">
   <div class="container">
     <h1>Gym Tracker — Quick Log</h1>
     <button id="addExerciseBtn" class="btn primary">+ Add Exercise</button>
@@ -83,6 +73,8 @@
       </form>
     </div>
   </div>
+  </div>
+
 
 <div id="addExerciseOverlay" class="overlay" role="dialog" aria-modal="true">
   <div class="modal" role="document">
@@ -123,8 +115,10 @@
     </div>
   </div>
 </div>
+</div>
 
-
+<div id="progressPage" class="page" style="display:none;"></div>
+<div id="musclePage" class="page" style="display:none;"></div>
 
 <!-- 
 <div id="progressPage">
@@ -140,45 +134,19 @@
   </div>
 </div> -->
 
-<div id="progressPage" class="progress-page">
-  <div class="progress-header">
-    <h2 class="progress-title">Your Progress</h2>
-    <p class="progress-subtitle">Track your fitness journey</p>
-  </div>
 
-  <div class="field exercise-selector">
-    <label for="exerciseSelect" class="select-label">
-      <svg class="label-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M6.5 6.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"></path>
-        <path d="M17.5 6.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"></path>
-        <path d="M6.5 17.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"></path>
-        <path d="M17.5 17.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"></path>
-        <path d="M8.5 8.5l7 7M8.5 15.5l7-7"></path>
-      </svg>
-      Select Exercise
-    </label>
-    <select id="exerciseSelect" class="exercise-select">
-      <option value="">Choose an exercise...</option>
-    </select>
-  </div>
-
-  <div id="exerciseProgressContainer" class="progress-container">
-    <div class="empty-state">
-      <svg class="empty-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-        <path d="M9 12l2 2 4-4"></path>
-      </svg>
-      <p class="empty-text">Select an exercise to view your progress</p>
-    </div>
-  </div>
-</div>
 
 
 
   <div id="toast" class="toast">Saved!</div>
 
 
-  <script src="script.js"></script>
+  <!-- <script src="{{ url_for('static', filename='javascript/script_main.js') }}"></script> -->
+  <!-- <script src="{{ url_for('static', filename='javascript/script_exercise.js') }}"></script> -->
+  <script src="../static/javascript/script_main.js"></script>
+  <script src="../static/javascript/script_exercise.js"></script>
+  <script src="../static/javascript/script_progress.js"></script>
+
 
 </body>
 </html>

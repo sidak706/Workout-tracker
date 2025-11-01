@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Gym Tracker</title>
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles/style_exercise.css') }}"> -->
+  <link rel="stylesheet" href="../static/styles/style_exercise.css">
+</head>
+
+<body>
+
+  <nav class="navbar">
+  <!-- <div class="logo">🏋️ Gym Tracker</div> -->
+  <ul class="nav-links">
+    <li><a href="#" id="nav-exercises">Exercises</a></li>
+    <li><a href="#" id="nav-progress">Progress</a></li>
+    <li><a href="#" id="nav-muscle">Muscle Groups</a></li>
+  </ul>
+</nav>
+
+
+
+<div id="progressPage">
+  <h2>Progress</h2>
+
+  <div class="field">
+    <label for="exerciseSelect">Select Exercise</label>
+    <select id="exerciseSelect"></select>
+  </div>
+
+  <div id="exerciseProgressContainer" class="progress-container">
+    <p>Select an exercise to view your progress.</p>
+  </div>
+</div>
+
+  <div id="toast" class="toast">Saved!</div>
+
+
+  <!-- <script src="{{ url_for('static', filename='javascript/script_main.js') }}"></script> -->
+  <!-- <script src="{{ url_for('static', filename='javascript/script_exercise.js') }}"></script> -->
+  <script src="../static/javascript/script_main.js"></script>
+  <script src="../static/javascript/script_progress.js"></script>
+
+</body>
+</html>

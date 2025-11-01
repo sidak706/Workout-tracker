@@ -13,8 +13,6 @@ const basic_exercises = ["Leg Extensions", "Hip thrusts", "Hip abductor machine"
 
 var all_exercises = []
 
-const backend = "http://127.0.0.1:5000"
-
 const overlay = document.getElementById('overlay');
 const toast = document.getElementById('toast');
 
@@ -353,9 +351,6 @@ document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
   document.getElementById('deleteExerciseOverlay').classList.remove('open');
 });
 
-
-
-
 // initial: hide entries
 // entriesCard.style.display = 'none';
 
@@ -364,108 +359,3 @@ document.getElementById('logWorkoutForm').addEventListener("submit", add_new_wor
 document.getElementById('confirmDeleteBtn').addEventListener('click', delete_exer); 
 window.addEventListener("DOMContentLoaded", get_display_last_5); 
 window.addEventListener("DOMContentLoaded", get_display_exercises); 
-
-
-
-// Mock sample data: multiple weights/sets per date
-const sampleProgressData = {
-  "Bench Press": [
-    {
-      date: "2025-10-10",
-      sets: [
-        { reps: 8, weight: 50 },
-        { reps: 8, weight: 55 },
-        { reps: 6, weight: 60 }
-      ]
-    },
-    {
-      date: "2025-10-17",
-      sets: [
-        { reps: 10, weight: 55 },
-        { reps: 8, weight: 60 },
-        { reps: 6, weight: 65 }
-      ]
-    }
-  ],
-  "Squat": [
-    {
-      date: "2025-10-09",
-      sets: [
-        { reps: 10, weight: 70 },
-        { reps: 8, weight: 75 }
-      ]
-    },
-    {
-      date: "2025-10-14",
-      sets: [
-        { reps: 6, weight: 80 },
-        { reps: 6, weight: 82.5 },
-        { reps: 5, weight: 85 }
-      ]
-    }
-  ]
-};
-
-// Helper to format date like "October 23, 2025"
-function formatDate(dateStr) {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-}
-
-// Populate dropdown
-function populateSampleExercises() {
-  const select = document.getElementById("exerciseSelect");
-  select.innerHTML = "";
-
-  Object.keys(sampleProgressData).forEach(name => {
-    const option = document.createElement("option");
-    option.value = name;
-    option.textContent = name;
-    select.appendChild(option);
-  });
-
-  select.addEventListener("change", () => {
-    const selected = select.value;
-    if (selected) displaySampleProgress(selected);
-  });
-}
-
-// Display exercise progress
-function displaySampleProgress(name) {
-  const container = document.getElementById("exerciseProgressContainer");
-  const entries = sampleProgressData[name];
-  container.innerHTML = "";
-
-  entries.forEach(session => {
-    const card = document.createElement("div");
-    card.classList.add("progress-card");
-
-    const dateHeading = document.createElement("div");
-    dateHeading.classList.add("progress-date");
-    dateHeading.textContent = formatDate(session.date);
-
-    const table = document.createElement("table");
-    table.classList.add("progress-table");
-    table.innerHTML = `
-      <thead>
-        <tr><th>Set</th><th>Reps</th><th>Weight (kg)</th></tr>
-      </thead>
-      <tbody>
-        ${session.sets.map((set, i) => `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${set.reps}</td>
-            <td>${set.weight}</td>
-          </tr>
-        `).join("")}
-      </tbody>
-    `;
-
-    card.appendChild(dateHeading);
-    card.appendChild(table);
-    container.appendChild(card);
-  });
-}
-
-// Initialize mock
-populateSampleExercises();
